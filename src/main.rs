@@ -1,6 +1,7 @@
 mod ex00;
 mod ex01;
 mod ex02;
+mod ex03;
 
 fn main() {
     // Exercise 00 test:
@@ -17,9 +18,17 @@ fn main() {
         println!("{a} * {b} = {}", ex01::multiplier(a, b));
     }
 
+    // Exercise 02 test
     println!("\n\nTesting exercise 02\n");
     for i in 0..16 {
         println!("The gray code of {i:>2} is {:>8b}", ex02::gray_code(i));
+    }
+
+    // Exercise 03 test
+    println!("\n\nTesting exercise 03\n");
+    let cases = ["10&", "10|", "10|1&", "101|&"];
+    for formula in cases {
+        println!("{formula} is {}", ex03::eval_formula(&formula));
     }
 }
 
