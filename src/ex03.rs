@@ -1,31 +1,23 @@
-
-fn eval_dyadic(a: bool, b: bool, op: char) -> bool {
-    match op {
-        '&' => a&b,
-        '|' => a|b,
-        '^' => a^b,
-        '>' => !a|b,
-        '=' => a==b,
-        _   => false,  // may ignore
-    }
-}
-
 pub fn eval_formula(formula: &str) -> bool {
     let mut stack: Vec<bool> = Vec::new();
+
     for c in formula.chars() {
-        match c {
-            '0' => stack.push(false),
-            '1' => stack.push(true),
-            '!' => {
-                let a = stack.pop().unwrap();
-                stack.push(!a);
+        let result = match c {
+            '0' | '1'   => c == '1',
+            '!'         => !stack.pop().unwrap(),
+            op          => {
+                let (b, a) = (stack.pop().unwrap(), stack.pop().unwrap());
+                match op {
+                    '&' => a & b,
+                    '|' => a | b,
+                    '^' => a ^ b,
+                    '>' => !a | b,
+                    '=' => a == b,
+                    _   => unreachable!("Not a valid operator: {op}."),
+                }
             }
-            op  => {
-                let a = stack.pop().unwrap();
-                let b = stack.pop().unwrap();
-                stack.push(eval_dyadic(a, b, op));
-            }
-        }
+        };
+        stack.push(result);
     }
     stack.pop().unwrap()
 }
