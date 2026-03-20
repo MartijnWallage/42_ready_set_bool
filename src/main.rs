@@ -26,7 +26,7 @@ fn main() {
 
     // Exercise 03 test
     println!("\n\nTesting exercise 03\n");
-    let cases = ["10&", "10|", "10|1&", "101|&"];
+    let cases = ["1!", "0!", "10!&", "10&", "10|", "10|1&", "101|&"];
     for formula in cases {
         println!("{formula} is {}", ex03::eval_formula(&formula));
     }

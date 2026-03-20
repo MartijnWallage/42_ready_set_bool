@@ -18,7 +18,7 @@ pub fn eval_formula(formula: &str) -> bool {
             '1' => stack.push(true),
             '!' => {
                 let a = stack.pop().unwrap();
-                stack.push(a);
+                stack.push(!a);
             }
             op  => {
                 let a = stack.pop().unwrap();
