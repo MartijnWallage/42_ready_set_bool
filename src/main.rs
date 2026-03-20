@@ -2,6 +2,7 @@ mod ex00;
 mod ex01;
 mod ex02;
 mod ex03;
+mod ex04;
 
 fn main() {
     // Exercise 00 test:
@@ -29,6 +30,14 @@ fn main() {
     let cases = ["1!", "0!", "10!&", "10&", "10|", "10|1&", "101|&", "10>", "01>", "110!^>", "10&11!&="];
     for formula in cases {
         println!("{formula} is {}", ex03::eval_formula(&formula));
+    }
+
+    // Exercise 04 test
+    println!("\n\nTesting exercise 04\n");
+    let cases = ["AB&", "AB|", "DJ>", "ABC|&"];
+    for case in cases {
+        println!("\n{case}");
+        ex04::print_truth_table(case);
     }
 }
 
