@@ -90,9 +90,9 @@ fn distribute(expr: Expr) -> Expr {
         Expr::Not(operand)      => Expr::not(distribute(*operand)),
         Expr::And(left, right)  => Expr::and(distribute(*left), distribute(*right)),
         Expr::Or(a, b)          => match (*a, *b) {
-            (Expr::And(aa, ab), _)  => Expr::and(distribute(Expr::or(*aa, *b.clone())), distribute(Expr::or(*ab, *b))),
-            (_, Expr::And(ba, bb))  => Expr::and(distribute(Expr::or(*a.clone(), *ba)), distribute(Expr::or(*a, *bb))),
-            _                       => Expr::or(*a, *b)
+            (Expr::And(aa, ab), c)  => Expr::and(distribute(Expr::or(*aa, c.clone())), distribute(Expr::or(*ab, c))),
+            (c, Expr::And(ba, bb))  => Expr::and(distribute(Expr::or(c.clone(), *ba)), distribute(Expr::or(c, *bb))),
+            (c, d)                       => Expr::or(c, d)
         }
     }
 }

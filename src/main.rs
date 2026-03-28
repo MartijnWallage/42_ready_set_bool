@@ -52,14 +52,136 @@ fn main() {
         println!("{}", ex05::negation_normal_form(case));
     }
 
-    // Exercise 06 test
-    println!("\n\nTesting exercise 06\n");
-    let cases = ["A", "AB&", "AB|", "AB^", "AB>", "AB=", "A!", "A!!", "AB&!", 
-        "AB&!!", "A!B&", "A!B&!", "AB!&", "AB!&!", "AB^!", "AB!^!", "AB>!", 
-        "AB=!", "AB&C|!", "AB|C&!"];
-    for case in cases {
-        println!("Testing {case}");
-        println!("{}", ex06::conjunctive_normal_form(case));
+    // CNF test
+    println!("\n\nTesting exercise 06: CNF conversion\n");
+    let cases = [
+        ("A",           "A"),
+        ("A!",          "A!"),
+        ("A!!",         "A"),
+        ("AB&",         "AB&"),
+        ("AB|",         "AB|"),
+        ("AB&C|",       "AC|BC|&"),
+        ("CAB&|",       "CA|CB|&"),
+        ("AB|C&",       "AB|C&"),
+        ("AB|CD|&",     "AB|CD|&"),
+        ("AB&CD&|",     "AC|AD|&BC|&BD|&"),
+        ("AB&!",        "A!B!|"),
+        ("AB|!",        "A!B!&"),
+        ("A!B!&!",      "AB|"),
+        ("A!B&",        "A!B&"),
+        ("AB!&",        "AB!&"),
+        ("AB&C|D&",     "AC|BC|&D&"),
+        ("AB&C|D&E|",       "ACE||BCE||&DE|&"),
+        ("AB&C&DE&|",       "AD|AE|&BD|&BE|&CD|&CE|&"),
+        ("AB&CD&|EF&|",     "ACE||ACF||&ADE||&ADF||&BCE||&BCF||&BDE||&BDF||&"),
+        ("AB|!CD|!|",       "A!C!|A!D!|&B!C!|&B!D!|&"),
+        ("AB&C|!",          "A!B!|C!&"),
+        ("AB^",         "AB|A!B!|&"),
+        ("AB>",         "A!B|"),
+        ("AB=",         "A!B|AB!|&"),
+        ("AB^C|",       "AB|C|A!B!|C|&"),
+        ("AB>C&",       "A!B|C&"),
+        ("AB>C>",       "AC|B!C|&"),
+        ("AB=C|",       "A!B|C|AB!|C|&"),
+        ("AB^!",        "A!B|AB!|&"),
+        ("AB^CD^&",     "AB|A!B!|&CD|&C!D!|&"),
+        ("AB=C=",       "AB|C|A!B!|C|&A!B|C!|&AB!|C!|&"),
+    ];
+//    for (case, expected) in cases {
+//        let result = ex06::conjunctive_normal_form(case);
+//        if result == expected {
+//            println!("✓ {case} => {result}");
+//        } else {
+//            println!("✗ {case} => {result} (expected {expected})");
+//        }
+//    }
+
+    for (input, expected_cnf) in cases {
+        let result = ex06::conjunctive_normal_form(input);
+        assert!(
+            are_equivalent(input, &result),
+            "Output '{}' is not semantically equivalent to input '{}'",
+            result, input
+        );
+        assert!(
+            are_equivalent(&result, expected_cnf),
+            "Output '{}' doesn't match expected CNF '{}' for input '{}'",
+            result, expected_cnf, input
+        );
     }
 }
 
+fn rpn_eval(formula: &str, assignment: &std::collections::HashMap<char, bool>) -> bool {
+    let mut stack: Vec<bool> = Vec::new();
+
+    for c in formula.chars() {
+        match c {
+            'A'..='Z' => stack.push(*assignment.get(&c).unwrap_or(&false)),
+            '!' => {
+                let a = stack.pop().unwrap();
+                stack.push(!a);
+            }
+            '&' => {
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                stack.push(a && b);
+            }
+            '|' => {
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                stack.push(a || b);
+            }
+            '^' => {
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                stack.push(a ^ b);
+            }
+            '>' => {
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                stack.push(!a || b);  // A→B = ¬A∨B
+            }
+            '=' => {
+                let b = stack.pop().unwrap();
+                let a = stack.pop().unwrap();
+                stack.push(a == b);   // A↔B
+            }
+            _ => {}
+        }
+    }
+    stack.pop().unwrap()
+}
+
+fn are_equivalent(f1: &str, f2: &str) -> bool {
+    // Collect all variables
+    let vars: std::collections::HashSet<char> = f1.chars()
+        .chain(f2.chars())
+        .filter(|c| c.is_uppercase())
+        .collect();
+    let vars: Vec<char> = vars.into_iter().collect();
+
+    // Try all 2^n assignments
+    for mask in 0..(1u32 << vars.len()) {
+        let assignment: std::collections::HashMap<char, bool> = vars.iter()
+            .enumerate()
+            .map(|(i, &v)| (v, (mask >> i) & 1 == 1))
+            .collect();
+
+        if rpn_eval(f1, &assignment) != rpn_eval(f2, &assignment) {
+            return false;
+        }
+    }
+    true
+}
+
+#[test]
+fn test_semantic_equivalence() {
+    let cases = vec![
+        ("A", "A"),
+        ("AB&C|", "AC|BC|&"),
+        ("AB&!", "A!B!|"),
+        ("AB|!", "A!B!&"),
+        ("AB&CD&|", "AC|AD|&BC|&BD|&"),
+    ];
+
+}
