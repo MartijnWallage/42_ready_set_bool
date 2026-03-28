@@ -71,25 +71,21 @@ fn parse_formula(formula: &str) -> Expr {
 fn to_nnf(expr: Expr) -> Expr {
     match expr {
         Expr::Var(c)            => Expr::Var(c),
-        Expr::And(left, right)  => {
-            Expr::and(to_nnf(*left), to_nnf(*right))
-        },
-        Expr::Or(left, right)   => {
-            Expr::or(to_nnf(*left), to_nnf(*right))
-        },
-        Expr::Not(operand)  => match *operand {
-            Expr::Not(inner) => to_nnf(*inner),
+        Expr::And(left, right)  => Expr::and(to_nnf(*left), to_nnf(*right)),
+        Expr::Or(left, right)   => Expr::or(to_nnf(*left), to_nnf(*right)),
+        Expr::Not(operand)      => match *operand {
+            Expr::Var(c)            => Expr::not(Expr::Var(c)),
+            Expr::Not(inner)        => to_nnf(*inner),
             Expr::And(left, right)  => {
                 let new_left = to_nnf(Expr::not(*left));
                 let new_right = to_nnf(Expr::not(*right));
                 Expr::or(new_left, new_right)
             }
-            Expr::Or(left, right) => {
+            Expr::Or(left, right)   => {
                 let new_left = to_nnf(Expr::not(*left));
                 let new_right = to_nnf(Expr::not(*right));
                 Expr::and(new_left, new_right)
             }
-            Expr::Var(c)    => Expr::not(Expr::Var(c))
         }
     }
 }

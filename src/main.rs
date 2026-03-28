@@ -4,6 +4,7 @@ mod ex02;
 mod ex03;
 mod ex04;
 mod ex05;
+mod ex06;
 
 fn main() {
     // Exercise 00 test:
@@ -49,6 +50,16 @@ fn main() {
     for case in cases {
         println!("Testing {case}");
         println!("{}", ex05::negation_normal_form(case));
+    }
+
+    // Exercise 06 test
+    println!("\n\nTesting exercise 06\n");
+    let cases = ["A", "AB&", "AB|", "AB^", "AB>", "AB=", "A!", "A!!", "AB&!", 
+        "AB&!!", "A!B&", "A!B&!", "AB!&", "AB!&!", "AB^!", "AB!^!", "AB>!", 
+        "AB=!", "AB&C|!", "AB|C&!"];
+    for case in cases {
+        println!("Testing {case}");
+        println!("{}", ex06::conjunctive_normal_form(case));
     }
 }
 
